@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: models-catalog
+spec:
+  replicas: 2            # MCP stateless modda çalışır; session affinity gerekmez
+  selector:
+    matchLabels: {app: models-catalog}
+  template:
+    metadata:
+      labels: {app: models-catalog}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: app
+          image: models-catalog
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef: {name: models-catalog-config}
+            - secretRef: {name: models-catalog-db}
+          readinessProbe:
+            httpGet: {path: /readyz, port: 8000}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /healthz, port: 8000}
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 100m, memory: 192Mi}
+            limits: {memory: 512Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}

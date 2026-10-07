@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: models-catalog-config
+data:
+  # Sunucunun dışarıdan görünen host adı (Ingress/DNS). DNS-rebinding koruması için ZORUNLU olarak doldurun.
+  CATALOG_ALLOWED_HOSTS: "models-mcp.corp.example"
+  # MCP sunucusunun ağ olarak ulaşabildiği lokasyon/ortamlar; boşsa canlı probe kapalıdır (yalnızca komut üretir).
+  CATALOG_PROBE_ENABLED: "true"
+  CATALOG_PROBE_REACHABLE_LOCATIONS: "atg"
+  CATALOG_PROBE_REACHABLE_ENVIRONMENTS: "dev,uat"
+  CATALOG_PROBE_TIMEOUT_SECONDS: "5"
