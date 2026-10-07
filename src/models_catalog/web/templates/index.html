@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Modeller ve servisler</h1>
+<div class="muted">{{ items|length }} kayıt</div>
+
+<form class="filters" method="get" action="/">
+  <input type="search" name="q" value="{{ filters.q }}" placeholder="Ara: ad, etiket, açıklama, makine, sahip…" aria-label="Ara">
+  {% for key, label in [("location","Lokasyon"),("environment","Ortam"),("service_type","Tip"),("platform","Platform"),("status","Durum")] %}
+  <select name="{{ key }}" aria-label="{{ label }}">
+    <option value="">{{ label }}: hepsi</option>
+    {% for o in options[key] %}<option value="{{ o }}" {% if filters[key] == o %}selected{% endif %}>{{ o }}</option>{% endfor %}
+  </select>
+  {% endfor %}
+  <button type="submit">Filtrele</button>
+</form>
+
+{% if items %}
+<div class="tablewrap"><table>
+  <thead><tr>
+    <th>Model</th><th>Tip</th><th>Lokasyon</th><th>Ortam</th><th>Platform</th><th>Adres</th>
+    <th>Context / Boyut</th><th>Durum</th><th>Sağlık</th>
+  </tr></thead>
+  <tbody>
+  {% for d in items %}
+  <tr>
+    <td><a href="/models/{{ d.id }}"><strong>{{ d.model_name }}</strong></a></td>
+    <td>{{ d.service_type }}</td>
+    <td>{{ d.location }}</td>
+    <td><span class="badge env-{{ d.environment }}">{{ d.environment }}</span></td>
+    <td>{{ d.platform }}</td>
+    <td><code>{{ d.base_url }}</code></td>
+    <td>{% if d.max_model_len %}{{ d.max_model_len }}{% elif d.embedding_dim %}dim {{ d.embedding_dim }}{% else %}—{% endif %}</td>
+    <td><span class="badge {% if d.status == 'active' %}ok{% elif d.status == 'maintenance' %}warn{% else %}bad{% endif %}">{{ d.status }}</span></td>
+    <td>{% if d.last_health_status %}<span class="badge {% if d.last_health_status == 'up' %}ok{% elif d.last_health_status == 'degraded' %}warn{% else %}bad{% endif %}">{{ d.last_health_status }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<div class="card empty">Filtreye uyan kayıt yok.</div>
+{% endif %}
+{% endblock %}

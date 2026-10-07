@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ d.model_name }} · Model Kataloğu{% endblock %}
+{% macro row(label, value) %}{% if value not in (none, "", []) %}<dt>{{ label }}</dt><dd>{{ value }}</dd>{% endif %}{% endmacro %}
+{% macro code(text, label="") %}
+<div class="codeblock">{% if label %}<div class="label">{{ label }}</div>{% endif %}<pre>{{ text }}</pre><button class="ghost" data-copy type="button">Kopyala</button></div>
+{% endmacro %}
+
+{% block content %}
+<p class="muted"><a href="/">&larr; Tüm modeller</a></p>
+<h1>{{ d.model_name }}
+  <span class="badge env-{{ d.environment }}">{{ d.environment }}</span>
+  <span class="badge">{{ d.location }}</span>
+  <span class="badge {% if d.status == 'active' %}ok{% elif d.status == 'maintenance' %}warn{% else %}bad{% endif %}">{{ d.status }}</span>
+  {% if d.deleted_at %}<span class="badge bad">silindi</span>{% endif %}
+</h1>
+<div class="muted">{{ d.service_type }} · {{ d.api_style }}{% if d.engine %} · {{ d.engine }}{% if d.engine_version %} {{ d.engine_version }}{% endif %}{% endif %}</div>
+{% if d.description %}<p>{{ d.description }}</p>{% endif %}
+
+{% if replicas %}
+<div class="card" style="margin-top:12px"><strong>Aynı adlı diğer kayıtlar:</strong>
+  {% for r in replicas %}<a href="/models/{{ r.id }}">{{ r.location }}/{{ r.environment }} ({{ r.base_url }})</a>{% if not loop.last %} · {% endif %}{% endfor %}
+</div>
+{% endif %}
+
+<div class="grid">
+  <section class="card"><h2>Erişim</h2><dl>
+    {{ row("Base URL", d.base_url) }}{{ row("Port", d.port) }}{{ row("Gerekli portlar", d.required_ports|join(", ")) }}
+    {{ row("Sağlık yolu", d.health_path) }}{{ row("Network", d.network_notes) }}{{ row("İzin talebi", d.access_request_info) }}
+  </dl></section>
+  <section class="card"><h2>Altyapı</h2><dl>
+    {{ row("Platform", d.platform) }}{{ row("Makine", d.hostname) }}{{ row("IP", d.ip) }}
+    {{ row("Cluster", d.k8s_cluster) }}{{ row("Namespace", d.k8s_namespace) }}{{ row("ArgoCD app", d.argocd_app) }}
+    {{ row("GPU", (d.gpu_count|string ~ " × " ~ d.gpu_type) if d.gpu_type and d.gpu_count else d.gpu_type) }}
+  </dl></section>
+  <section class="card"><h2>Model</h2><dl>
+    {{ row("Model ID", d.model_id) }}{{ row("Context length", d.max_model_len) }}{{ row("Embedding boyutu", d.embedding_dim) }}
+    {{ row("Azami girdi token", d.max_input_tokens) }}{{ row("Quantization", d.quantization) }}{{ row("dtype", d.dtype) }}
+    {{ row("HF yolu", d.hf_model_path) }}
+    {{ row("Tool calling", "evet" if d.supports_tools else ("hayır" if d.supports_tools is false else none)) }}
+    {{ row("Reasoning", "evet" if d.supports_reasoning else ("hayır" if d.supports_reasoning is false else none)) }}
+    {{ row("Vision", "evet" if d.supports_vision else ("hayır" if d.supports_vision is false else none)) }}
+  </dl></section>
+  <section class="card"><h2>Sahiplik ve sağlık</h2><dl>
+    {{ row("Sahip ekip", d.owner_team) }}{{ row("İletişim", d.owner_contact) }}{{ row("Etiketler", d.tags|join(", ")) }}
+    {{ row("Son sağlık", d.last_health_status) }}{{ row("Kontrol zamanı", d.last_health_at) }}{{ row("Detay", d.last_health_detail) }}
+    {{ row("Ekleyen", d.created_by ~ " · " ~ d.created_at) }}{{ row("Güncelleyen", (d.updated_by ~ " · " ~ d.updated_at) if d.updated_by else none) }}
+  </dl></section>
+</div>
+
+<section class="card" data-tabs>
+  <h2>Nasıl kullanılır</h2>
+  <div class="tabs" role="tablist">
+    {% for sh in shells %}<button class="tab" role="tab" type="button" data-target="p-{{ sh }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ sh }}</button>{% endfor %}
+    {% if guide.python %}<button class="tab" role="tab" type="button" data-target="p-python" aria-selected="false">python</button>{% endif %}
+  </div>
+  {% for sh in shells %}
+  <div class="panel" id="p-{{ sh }}" role="tabpanel" {% if not loop.first %}hidden{% endif %}>
+    {{ code(guide.access_test.port_check[sh]|join("\n"), "1) Port erişimi") }}
+    {{ code(guide.access_test.health[sh], "2) Sağlık kontrolü") }}
+    {% if guide.access_test.list_models %}{{ code(guide.access_test.list_models[sh], "3) Model listesi") }}{% endif %}
+    {{ code(guide.example_request[sh], "4) Örnek istek — " ~ guide.example_request.description) }}
+  </div>
+  {% endfor %}
+  {% if guide.python %}
+  <div class="panel" id="p-python" role="tabpanel" hidden>
+    {% for name, src in guide.python.items() %}{{ code(src, name) }}{% endfor %}
+  </div>
+  {% endif %}
+  <ul class="muted">{% for n in guide.notes %}<li>{{ n }}</li>{% endfor %}</ul>
+</section>
+
+<section class="card" style="margin-top:16px"><h2>Değişiklik geçmişi</h2>
+  {% if events %}
+  <div class="tablewrap"><table>
+    <thead><tr><th>Zaman</th><th>Kişi</th><th>İşlem</th><th>Kaynak</th><th>Değişen alanlar</th></tr></thead>
+    <tbody>{% for e in events %}<tr><td>{{ e.at }}</td><td>{{ e.actor }}</td><td>{{ e.action }}</td><td>{{ e.source }}</td><td class="wrap-ok">{{ e.changed_fields|join(", ") }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="muted">Kayıt yok.</div>{% endif %}
+</section>
+{% endblock %}
