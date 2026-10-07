@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "models-catalog": {
+      "type": "http",
+      "url": "https://models-mcp.corp.example/mcp"
+    }
+  }
+}
