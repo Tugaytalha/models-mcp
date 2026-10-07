@@ -1,0 +1,1 @@
+"""Model/servis kataloğu."""
