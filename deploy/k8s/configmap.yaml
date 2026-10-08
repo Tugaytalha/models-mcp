@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: models-catalog-config
 data:
+  # Açılışta veritabanı şemasını otomatik günceller (DB kullanıcısının tablo oluşturma yetkisi olmalı).
+  CATALOG_AUTO_MIGRATE: "true"
   # Sunucunun dışarıdan görünen host adı (Ingress/DNS). DNS-rebinding koruması için ZORUNLU olarak doldurun.
   CATALOG_ALLOWED_HOSTS: "models-mcp.corp.example"
   # MCP sunucusunun ağ olarak ulaşabildiği lokasyon/ortamlar; boşsa canlı probe kapalıdır (yalnızca komut üretir).

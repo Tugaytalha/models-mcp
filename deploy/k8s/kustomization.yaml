@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: models-mcp
 resources:
   - configmap.yaml
-  - migrate-job.yaml
   - deployment.yaml
   - service.yaml
 # secret.example.yaml bilerek dahil değil: gerçek secret'ı kendi yönteminizle (Vault/SealedSecrets) oluşturun.
