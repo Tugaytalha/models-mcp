@@ -79,6 +79,7 @@ Ortam değişkenleri (`CATALOG_` öneki):
 | Değişken | Açıklama |
 |---|---|
 | `DATABASE_URL` | `postgresql+psycopg://user:pass@host:5432/db` |
+| `AUTO_MIGRATE` | Varsayılan `true`: servis ilk açılışta (ve her açılışta) şemayı kendisi günceller. Birden çok replica aynı anda kalksa da Postgres advisory lock sayesinde yalnızca biri migration yapar. DB kullanıcısının tablo/index oluşturma yetkisi olmalı. Migration başarısız olursa servis açılmaz (log'a bakın). Kapatmak için `false` |
 | `ALLOWED_HOSTS` | Sunucunun host adı(ları), virgülle. **Üretimde mutlaka doldurun** (DNS-rebinding koruması). `*` = kapalı |
 | `PROBE_REACHABLE_LOCATIONS` / `PROBE_REACHABLE_ENVIRONMENTS` | Sunucunun ağ olarak ulaşabildiği yerler (örn. `atg` / `dev,uat`). Boşsa canlı test yoktur, kullanıcıya komut verilir |
 | `PROBE_TIMEOUT_SECONDS` | Canlı test zaman aşımı (varsayılan 5) |
