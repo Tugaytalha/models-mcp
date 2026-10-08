@@ -1,7 +1,7 @@
 """HTTP katmanı: REST, web kataloğu ve /mcp (streamable HTTP, stateless JSON)."""
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.pool import StaticPool
 
 from models_catalog.app import app
@@ -15,9 +15,11 @@ H = {"X-Performed-By": "tugay"}
 def http():
     # session_manager.run() örnek başına bir kez çalışabilir → modül başına tek TestClient.
     eng = create_engine("sqlite://", poolclass=StaticPool, connect_args={"check_same_thread": False})
-    Base.metadata.create_all(eng)
     db_session.configure(eng)
+    # Boş veritabanı: tabloları uygulamanın açılış migration'ı (lifespan) oluşturmalı.
+    assert not inspect(eng).get_table_names()
     with TestClient(app) as c:
+        assert {"deployments", "audit_log"} <= set(inspect(eng).get_table_names())
         yield c
     eng.dispose()
 

@@ -8,6 +8,9 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://catalog:catalog@localhost:5432/catalog"
 
+    # Açılışta şemayı otomatik günceller (Postgres'te advisory lock ile, çok replica güvenli).
+    auto_migrate: bool = True
+
     # Canlı probe: sunucunun ağ olarak erişebildiği lokasyon/ortamlar (virgülle ayrılmış).
     # Boş bırakılırsa probe kapalı sayılır ve sadece komut üretilir.
     probe_enabled: bool = True

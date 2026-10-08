@@ -1,6 +1,7 @@
 """FastAPI uygulaması: /mcp (MCP), /api/v1 (REST), / (web kataloğu)."""
 from __future__ import annotations
 
+import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -11,6 +12,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .api.routes import ops, router as api_router
 from .config import get_settings
+from .db.migrate import upgrade_to_head
 from .mcp_server.server import mcp
 from .services.errors import CatalogError, NotFound
 from .web.routes import router as web_router
@@ -36,6 +38,9 @@ mcp_app = mcp.streamable_http_app(streamable_http_path="/mcp", stateless_http=Tr
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    if get_settings().auto_migrate:
+        # Başarısız olursa açılış durur (yarım şemayla hizmet verilmez); orkestratör yeniden dener.
+        await asyncio.to_thread(upgrade_to_head)
     async with mcp.session_manager.run():
         yield
 

@@ -15,12 +15,21 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+def _run(connection) -> None:
+    context.configure(connection=connection, target_metadata=target_metadata)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
 def run_migrations_online() -> None:
+    # Uygulama açılışında (db/migrate.py) kilidi tutan bağlantı dışarıdan verilir; CLI'da kendimiz açarız.
+    connection = config.attributes.get("connection")
+    if connection is not None:
+        _run(connection)
+        return
     engine = create_engine(get_settings().database_url)
-    with engine.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
-        with context.begin_transaction():
-            context.run_migrations()
+    with engine.connect() as conn:
+        _run(conn)
 
 
 if context.is_offline_mode():
