@@ -23,7 +23,7 @@ REQUIRED_RULES: list[tuple[Callable[[dict[str, Any]], bool], list[str], str]] = 
       "base_url", "port", "required_ports"],
      "Her kayıt için zorunlu."),
     (lambda d: d.get("platform") == Platform.ARGOCD_K8S.value,
-     ["k8s_namespace", "argocd_app"], "Platform ArgoCD/k8s olduğunda zorunlu."),
+     ["argocd_app"], "Platform ArgoCD/k8s olduğunda zorunlu (namespace isteğe bağlı)."),
     (lambda d: d.get("platform") in (Platform.DEV_GPU.value, Platform.VM.value),
      ["hostname"], "Platform dev-gpu veya VM olduğunda zorunlu (modelin hangi makinede olduğu)."),
     (lambda d: d.get("service_type") in LLM_TYPES,

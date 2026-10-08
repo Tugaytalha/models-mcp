@@ -50,7 +50,7 @@ Zorunlu alanlar platforma ve tipe göre değişir:
 | Koşul | Ek zorunlu alanlar |
 |---|---|
 | Her kayıt | model adı, tip, API stili, lokasyon, ortam, platform, base URL, port, gerekli portlar |
-| Platform `argocd_k8s` | `k8s_namespace`, `argocd_app` |
+| Platform `argocd_k8s` | `argocd_app` (`k8s_namespace` isteğe bağlı) |
 | Platform `dev_gpu` / `vm` | `hostname` (modelin hangi makinede olduğu) |
 | LLM / vision | `max_model_len` |
 | Embedding | `embedding_dim` |

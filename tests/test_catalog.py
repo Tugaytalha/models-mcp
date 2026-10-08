@@ -35,7 +35,7 @@ def test_missing_fields_reported_with_questions(session):
 
 
 @pytest.mark.parametrize("platform, expected", [
-    ("argocd_k8s", {"k8s_namespace", "argocd_app"}),
+    ("argocd_k8s", {"argocd_app"}),
     ("dev_gpu", {"hostname"}),
     ("vm", {"hostname"}),
 ])
@@ -43,7 +43,9 @@ def test_platform_conditional_required(session, llm_draft, platform, expected):
     llm_draft.pop("k8s_namespace"), llm_draft.pop("argocd_app")
     llm_draft["platform"] = platform
     res = validate_draft(session, llm_draft)
-    assert expected <= {m["field"] for m in res.missing_fields}
+    missing = {m["field"] for m in res.missing_fields}
+    assert expected <= missing
+    assert "k8s_namespace" not in missing  # namespace hiçbir platformda zorunlu değil
 
 
 def test_custom_service_requires_endpoint_and_example(session, llm_draft):
