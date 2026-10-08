@@ -42,13 +42,16 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--create-tables", action="store_true", help="Tabloları oluştur (sadece lokal SQLite için)")
     ap.add_argument("--force", action="store_true", help="SQLite olmayan bir veritabanına yüklemeye izin ver")
+    ap.add_argument("--no-samples", action="store_true", help="Örnek veri yükleme (yalnızca --create-tables)")
     args = ap.parse_args()
 
     engine = get_engine()
-    if engine.dialect.name != "sqlite" and not args.force:
+    if engine.dialect.name != "sqlite" and not args.force and not args.no_samples:
         raise SystemExit("Örnek veri yalnızca lokal SQLite'a yüklenir. Başka DB için --force kullanın.")
     if args.create_tables:
         Base.metadata.create_all(engine)
+    if args.no_samples:
+        return
 
     with session_scope() as s:
         for draft in SAMPLES:
