@@ -1,3 +1,16 @@
+# Models & Services Catalog (MCP)
+
+**English summary.** One catalog of a team's model deployments: vLLM LLMs, embedding and reranker models, and custom services (which environment, which address and ports, how to call them). It is exposed to GitHub Copilot as an **MCP server** (streamable HTTP), and the same data is available as a read-only web catalog and a REST API. A single FastAPI app serves all three interfaces on top of PostgreSQL (SQLAlchemy + Alembic). Schema migrations run automatically on startup under an advisory lock, so several replicas can start together. SQLite is used for local runs and tests.
+
+- Each row is a deployment (model × address), so the same model on another host or environment is a separate record.
+- Quick start: `python scripts/setup.py local --seed --run` (needs [uv](https://docs.astral.sh/uv/)), then open `http://localhost:8000/` (web catalog) and `http://localhost:8000/mcp` (MCP endpoint). The sample data is fictional.
+- Tests: `uv sync --extra dev --python 3.12 && uv run pytest` (SQLite, no Docker needed).
+- Copilot setup: [docs/copilot-setup.md](docs/copilot-setup.md)
+
+The rest of this README is in Turkish.
+
+---
+
 # Model & Servis Kataloğu (MCP)
 
 Ekibin vLLM LLM'lerini, embedding/reranker modellerini ve kendi servislerini (hangi ortamda, hangi adreste, hangi
